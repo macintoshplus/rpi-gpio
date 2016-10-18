@@ -4,7 +4,13 @@ Use the Raspberry Pi GPIO port with C
 # Global considerations
 
 In all example, the library used is [WiringPi](https://projects.drogon.net/raspberry-pi/wiringpi/). This library can work on 3 modes.
-By default, the mode is by default.
+The used mode is the default mode.
+
+You can display the pin number with this command
+
+```
+$ gpio readall
+```
 
 I used this page for [GPIO pin number](http://deusyss.developpez.com/tutoriels/RaspberryPi/PythonEtLeGpio/#LII-D).
 
