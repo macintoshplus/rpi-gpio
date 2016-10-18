@@ -12,7 +12,7 @@ You can display the pin number with this command
 $ gpio readall
 ```
 
-I used this page for [GPIO pin number](http://deusyss.developpez.com/tutoriels/RaspberryPi/PythonEtLeGpio/#LII-D).
+I used this page for locate the physical pin number : [GPIO pin number](http://deusyss.developpez.com/tutoriels/RaspberryPi/PythonEtLeGpio/#LII-D).
 
 ## Blink
 
