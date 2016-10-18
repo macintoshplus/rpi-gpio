@@ -36,14 +36,6 @@ int main (void)
   lcdPosition(fd, 0, 1);
   lcdPuts(fd, "Delay");
 
- // lcdPosition(fd, 0, 0);
- // lcdPuts(fd, "Salut Jean-Baptiste!");
-
-  lcdPosition(fd, 0, 3);
-  lcdPuts(fd, "Temp");
-  lcdPosition(fd, 6, 3);
-  lcdPuts(fd, strTemp);
-
   pinMode(0, OUTPUT);
   pinMode(2, INPUT);
   pullUpDnControl(2, PUD_UP);
