@@ -16,7 +16,7 @@ if test "$PHP_WIRINGPI" != "no"; then
     
     if test -z "$WIRINGPI_DIR"
     then
-        AC_MSG_ERROR(Cannot find libcmark: please install it)
+        AC_MSG_ERROR(Cannot find libwiringPi: please install it)
     fi
     AC_MSG_RESULT([wiringPi found in $WIRINGPI_DIR])
     
