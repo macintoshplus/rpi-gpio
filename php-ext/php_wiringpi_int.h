@@ -29,19 +29,7 @@
 #endif
 
 ZEND_BEGIN_MODULE_GLOBALS(wiringpi)
-	HANDLE svc_thread; /* MUST be first in struct */
-	DWORD svc_thread_id;
-	HANDLE event;
-	DWORD  code;
-	SERVICE_STATUS 			st;
-	SERVICE_STATUS_HANDLE	sh;
-	SERVICE_TABLE_ENTRY		te[2];
 	char *service_name;
-	/* args for the control handler */
-	struct {
-		DWORD dwControl, dwEventType;
-		LPVOID lpEventData;
-	} args;
 ZEND_END_MODULE_GLOBALS(wiringpi)
 
 ZEND_DECLARE_MODULE_GLOBALS(wiringpi);
