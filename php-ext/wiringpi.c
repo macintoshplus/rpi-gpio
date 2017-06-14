@@ -36,7 +36,7 @@ static PHP_FUNCTION(wiringpi_setup)
 {
 	int code;
 	code = wiringPiSetup();
-	RETURN_LONG(SVCG(code));
+	RETURN_LONG(code);
 }
 /* }}} */
 
