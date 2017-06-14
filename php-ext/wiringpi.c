@@ -30,6 +30,16 @@
 #include "SAPI.h"
 #include <wiringPi.h>
 
+/* {{{ proto int wiringpi_setup()
+	Init the wiringpi lib */
+static PHP_FUNCTION(wiringpi_setup)
+{
+	int code;
+	code = wiringPiSetup();
+	RETURN_LONG(SVCG(code));
+}
+/* }}} */
+
 /* {{{ proto bool win32_start_service_ctrl_dispatcher(string $name)
    Registers the script with the SCM, so that it can act as the service with the given name */
 /*static PHP_FUNCTION(win32_start_service_ctrl_dispatcher)
@@ -82,13 +92,14 @@
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()*/
 
-/*ZEND_BEGIN_ARG_INFO_EX(arginfo_win32_get_last_control_message, 0, 0, 0)
-ZEND_END_ARG_INFO()*/
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_setup, 0, 0, 0)
+ZEND_END_ARG_INFO()
 
 /* }}} */
 
 static zend_function_entry functions[] = {
 	//PHP_FE(win32_start_service_ctrl_dispatcher, arginfo_win32_start_service_ctrl_dispatcher)
+	PHP_FE(wiringpi_setup, arginfo_wiringpi_setup)
 	PHP_FE_END
 };
 
