@@ -263,10 +263,13 @@ static PHP_RSHUTDOWN_FUNCTION(wiringpi)
 
 static PHP_MINFO_FUNCTION(wiringpi)
 {
+	int major;
+	int minor;
+	wiringPiVersion(&major, &minor);
 	php_info_print_table_start();
 	php_info_print_table_row(2, "WiringPi", "enabled");
 	php_info_print_table_row(2, "Version", PHP_WIRINGPI_VERSION);
-	php_info_print_table_row(2, "libwiringPi version", VERSION);
+	php_info_print_table_row(2, "libwiringPi version", php_sprintf("%ld.%ld", major, minor));
 	php_info_print_table_end();
 }
 
