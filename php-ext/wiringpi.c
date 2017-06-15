@@ -265,11 +265,13 @@ static PHP_MINFO_FUNCTION(wiringpi)
 {
 	int major;
 	int minor;
+	char *piVersion;
 	wiringPiVersion(&major, &minor);
+	php_sprintf(piVersion, "%ld.%ld", major, minor)
 	php_info_print_table_start();
 	php_info_print_table_row(2, "WiringPi", "enabled");
 	php_info_print_table_row(2, "Version", PHP_WIRINGPI_VERSION);
-	php_info_print_table_row(2, "libwiringPi version", php_sprintf("%ld.%ld", major, minor));
+	php_info_print_table_row(2, "libwiringPi version", piVersion);
 	php_info_print_table_end();
 }
 
