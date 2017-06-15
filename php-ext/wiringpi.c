@@ -44,7 +44,9 @@ static PHP_FUNCTION(wiringpi_setup)
 	Return the Wiring Pi Mode of library */
 static PHP_FUNCTION(wiring_pi_mode)
 {
-	RETURN_LONG(wiringPiMode);
+	//wiringPiMode
+	RETURN_LONG(-1);
+
 }
 /* }}} */
 
