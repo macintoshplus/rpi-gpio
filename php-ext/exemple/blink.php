@@ -1,17 +1,17 @@
 <?php
 $exit = 0;
 printf("Demarrage \n");
-wiringPiSetup();
+wiringpi_setup();
 
-pinMode(0, WIRINGPI_OUTPUT);
-pinMode(2, WIRINGPI_INPUT);
-pullUpDnControl(2, WIRINGPI_PUD_UP);
+wiringpi_pin_mode(0, WIRINGPI_OUTPUT);
+wiringpi_pin_mode(2, WIRINGPI_INPUT);
+wiringpi_pull_up_dn_control(2, WIRINGPI_PUD_UP);
 
 while(1)
   {
-    digitalWrite(0, WIRINGPI_HIGH) ; usleep(500) ;
-    digitalWrite(0, WIRINGPI_LOW) ; usleep(500) ;
-    if (digitalRead(2) == 0) {
+    wiringpi_digital_write(0, WIRINGPI_HIGH) ; usleep(500) ;
+    wiringpi_digital_write(0, WIRINGPI_LOW) ; usleep(500) ;
+    if (wiringpi_digital_read(2) == 0) {
 	printf("Bouton\n");
 	$exit ++;
 	if($exit > 2) {
