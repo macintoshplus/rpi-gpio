@@ -28,7 +28,7 @@
 #include "php_wiringpi.h"
 #include "php_wiringpi_int.h"
 #include "SAPI.h"
-#include <wiringPi.h>
+#include "wiringPi.h"
 
 /* {{{ proto int wiringpi_setup()
 	Init the wiringpi lib */
@@ -193,6 +193,7 @@ static PHP_MINFO_FUNCTION(wiringpi)
 	php_info_print_table_start();
 	php_info_print_table_row(2, "WiringPi", "enabled");
 	php_info_print_table_row(2, "Version", PHP_WIRINGPI_VERSION);
+	php_info_print_table_row(2, "libwiringPi version", VERSION);
 	php_info_print_table_end();
 }
 
