@@ -40,6 +40,64 @@ static PHP_FUNCTION(wiringpi_setup)
 }
 /* }}} */
 
+/* {{{ proto int wiring_pi_mode()
+	Return the Wiring Pi Mode of library */
+static PHP_FUNCTION(wiring_pi_mode)
+{
+	RETURN_LONG(wiringPiMode);
+}
+/* }}} */
+
+
+/* {{{ proto bool wiringpi_pin_mode(int $pin, int $mode)
+	Set mode for one pin */
+static PHP_FUNCTION(wiringpi_pin_mode)
+{
+	long pin;
+	long mode;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &mode)) {
+		RETURN_FALSE;
+	}
+	if (pin < 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	if (mode != OUTPUT && mode != INPUT) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Mode is not equal to WIRINGPI_INPUT or WIRINGPI_OUTPUT");
+		RETURN_FALSE;
+	}
+
+	pinMode(pin, mode);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool wiringpi_pull_up_dn_control(int $pin, int $mode)
+	Set mode for one pin */
+static PHP_FUNCTION(wiringpi_pull_up_dn_control)
+{
+	long pin;
+	long mode;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &mode)) {
+		RETURN_FALSE;
+	}
+	if (pin < 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	if (mode != PUD_OFF && mode != PUD_DOWN && mode != PUD_UP) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Mode is not equal to WIRINGPI_PUD_OFF or WIRINGPI_PUD_DOWN or WIRINGPI_PUD_UP");
+		RETURN_FALSE;
+	}
+
+	pullUpDnControl(pin, mode);
+	RETURN_TRUE;
+}
+/* }}} */
+
+
 /* {{{ proto bool win32_start_service_ctrl_dispatcher(string $name)
    Registers the script with the SCM, so that it can act as the service with the given name */
 /*static PHP_FUNCTION(win32_start_service_ctrl_dispatcher)
@@ -88,11 +146,21 @@ static PHP_FUNCTION(wiringpi_setup)
 
 
 /* {{{ arginfo */
-/*ZEND_BEGIN_ARG_INFO_EX(arginfo_win32_start_service_ctrl_dispatcher, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()*/
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_setup, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiring_pi_mode, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_pin_mode, 0, 0, 2)
+	ZEND_ARG_INFO(0, pin)
+	ZEND_ARG_INFO(0, mode)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_pull_up_dn_control, 0, 0, 2)
+	ZEND_ARG_INFO(0, pin)
+	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 /* }}} */
@@ -100,6 +168,9 @@ ZEND_END_ARG_INFO()
 static zend_function_entry functions[] = {
 	//PHP_FE(win32_start_service_ctrl_dispatcher, arginfo_win32_start_service_ctrl_dispatcher)
 	PHP_FE(wiringpi_setup, arginfo_wiringpi_setup)
+	PHP_FE(wiring_pi_mode, arginfo_wiring_pi_mode)
+	PHP_FE(wiringpi_pin_mode, arginfo_wiringpi_pin_mode)
+	PHP_FE(wiringpi_pull_up_dn_control, arginfo_wiringpi_pull_up_dn_control)
 	PHP_FE_END
 };
 
