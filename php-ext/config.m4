@@ -21,7 +21,7 @@ if test "$PHP_WIRINGPI" != "no"; then
     AC_MSG_RESULT([wiringPi found in $WIRINGPI_DIR])
     
     PHP_ADD_INCLUDE($WIRINGPI_DIR/include)
-    PHP_ADD_LIBRARY_WITH_PATH(wiringpi, $WIRINGPI_DIR/lib, WIRINGPI_SHARED_LIBADD)
+    PHP_ADD_LIBRARY_WITH_PATH(wiringPi, $WIRINGPI_DIR/lib, WIRINGPI_SHARED_LIBADD)
     AC_DEFINE(HAVE_WIRINGPI, 1, [Have wiringPi library])
     
     dnl Pour que le linker lie à la bibliothèque
