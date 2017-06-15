@@ -99,6 +99,50 @@ static PHP_FUNCTION(wiringpi_pull_up_dn_control)
 }
 /* }}} */
 
+/* {{{ proto bool wiringpi_digital_write(int $pin, int $level)
+	Set level for one pin */
+static PHP_FUNCTION(wiringpi_digital_write)
+{
+	long pin;
+	long level;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &level)) {
+		RETURN_FALSE;
+	}
+	if (pin < 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	if (level != HIGH && level != LOW) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "level is not equal to WIRINGPI_HIGH or WIRINGPI_LOW");
+		RETURN_FALSE;
+	}
+
+	digitalWrite(pin, level);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto int wiringpi_digital_write(int $pin)
+	Set level for one pin */
+static PHP_FUNCTION(wiringpi_digital_read)
+{
+	long pin;
+	int val;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pin)) {
+		RETURN_FALSE;
+	}
+	if (pin < 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	val = digitalRead(pin);
+	RETURN_LONG(val);
+}
+/* }}} */
+
+
 
 /* {{{ proto bool win32_start_service_ctrl_dispatcher(string $name)
    Registers the script with the SCM, so that it can act as the service with the given name */
@@ -165,13 +209,25 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_pull_up_dn_control, 0, 0, 2)
 	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_digital_write, 0, 0, 2)
+	ZEND_ARG_INFO(0, pin)
+	ZEND_ARG_INFO(0, level)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_digital_read, 0, 0, 1)
+	ZEND_ARG_INFO(0, pin)
+ZEND_END_ARG_INFO()
+
 /* }}} */
+
 
 static zend_function_entry functions[] = {
 	//PHP_FE(win32_start_service_ctrl_dispatcher, arginfo_win32_start_service_ctrl_dispatcher)
 	PHP_FE(wiringpi_setup, arginfo_wiringpi_setup)
 	PHP_FE(wiring_pi_mode, arginfo_wiring_pi_mode)
 	PHP_FE(wiringpi_pin_mode, arginfo_wiringpi_pin_mode)
+	PHP_FE(wiringpi_digital_write, arginfo_wiringpi_digital_write)
+	PHP_FE(wiringpi_digital_read, arginfo_wiringpi_digital_read)
 	PHP_FE(wiringpi_pull_up_dn_control, arginfo_wiringpi_pull_up_dn_control)
 	PHP_FE_END
 };
