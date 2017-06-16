@@ -1,7 +1,10 @@
 <?php
 $exit = 0;
 printf("Demarrage \n");
+
+var_dump(wiringpi_already_setup());
 wiringpi_setup();
+var_dump(wiringpi_already_setup());
 
 wiringpi_pin_mode(0, WIRINGPI_OUTPUT);
 wiringpi_pin_mode(2, WIRINGPI_INPUT);

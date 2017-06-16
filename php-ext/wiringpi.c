@@ -236,7 +236,7 @@ static void init_globals(zend_wiringpi_globals *g)
 
 static PHP_MINIT_FUNCTION(wiringpi)
 {
-	SVCG(is_setup) = 0;
+//	SVCG(is_setup) = 0;
 
 	ZEND_INIT_MODULE_GLOBALS(wiringpi, init_globals, NULL);
 	// wiringPi modes
