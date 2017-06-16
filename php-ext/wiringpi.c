@@ -157,7 +157,7 @@ static PHP_FUNCTION(wiringpi_pwm_write)
 		RETURN_FALSE;
 	}
 
-	value(pin, value);
+	pwmWrite(pin, value);
 	RETURN_TRUE;
 }
 /* }}} */
