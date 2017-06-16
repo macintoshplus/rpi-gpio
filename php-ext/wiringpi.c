@@ -60,7 +60,7 @@ static PHP_FUNCTION(wiringpi_pin_mode)
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &mode)) {
 		RETURN_FALSE;
 	}
-	if (pin < 0) {
+	if ((pin & PI_GPIO_MASK) != 0) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
 		RETURN_FALSE;
 	}
@@ -84,7 +84,7 @@ static PHP_FUNCTION(wiringpi_pull_up_dn_control)
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &mode)) {
 		RETURN_FALSE;
 	}
-	if (pin < 0) {
+	if ((pin & PI_GPIO_MASK) != 0) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
 		RETURN_FALSE;
 	}
@@ -108,7 +108,7 @@ static PHP_FUNCTION(wiringpi_digital_write)
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &level)) {
 		RETURN_FALSE;
 	}
-	if (pin < 0) {
+	if ((pin & PI_GPIO_MASK) != 0) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
 		RETURN_FALSE;
 	}
@@ -132,7 +132,7 @@ static PHP_FUNCTION(wiringpi_digital_read)
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pin)) {
 		RETURN_FALSE;
 	}
-	if (pin < 0) {
+	if ((pin & PI_GPIO_MASK) != 0) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
 		RETURN_FALSE;
 	}
@@ -143,52 +143,25 @@ static PHP_FUNCTION(wiringpi_digital_read)
 /* }}} */
 
 
-
-/* {{{ proto bool win32_start_service_ctrl_dispatcher(string $name)
-   Registers the script with the SCM, so that it can act as the service with the given name */
-/*static PHP_FUNCTION(win32_start_service_ctrl_dispatcher)
+/* {{{ proto bool wiringpi_pwm_write(int $pin, int $value)
+	Set value for one pin */
+static PHP_FUNCTION(wiringpi_pwm_write)
 {
-	if (strcmp(sapi_module.name, "cli") != 0) {
-		zend_error(E_ERROR, "This function work only when using the CLI SAPI and called into the service code.");
+	long pin;
+	long value;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &value)) {
+		RETURN_FALSE;
+	}
+	if ((pin & PI_GPIO_MASK) != 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
 		RETURN_FALSE;
 	}
 
-	char *name;
-	size_t name_len;
-
-	if (SVCG(svc_thread)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "service ctrl dispatcher already running");
-		RETURN_FALSE;
-	}
-
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len)) {
-		RETURN_FALSE;
-	}
-
-	SVCG(service_name) = estrdup(name);
-
-	SVCG(te)[0].lpServiceName = SVCG(service_name);
-	SVCG(te)[0].lpServiceProc = service_main;
-	SVCG(event) = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-	SVCG(svc_thread) = CreateThread(NULL, 0, svc_thread_proc, &SVCG(svc_thread), 0, &SVCG(svc_thread_id));
-
-	if (SVCG(svc_thread) == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to start dispatcher thread");
-		RETURN_FALSE;
-	}
-
-	if (WAIT_OBJECT_0 == WaitForSingleObject(SVCG(event), 30000)) {
-		if (SVCG(code) == NO_ERROR) {
-			RETURN_TRUE;
-		} else {
-			RETURN_LONG(SVCG(code));
-		}
-	}
-
-	RETURN_FALSE;
-}*/
+	value(pin, value);
+	RETURN_TRUE;
+}
 /* }}} */
+
 
 
 /* {{{ arginfo */
@@ -218,6 +191,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_digital_read, 0, 0, 1)
 	ZEND_ARG_INFO(0, pin)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_pwm_write, 0, 0, 2)
+	ZEND_ARG_INFO(0, pin)
+	ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
 /* }}} */
 
 
@@ -228,6 +206,7 @@ static zend_function_entry functions[] = {
 	PHP_FE(wiringpi_pin_mode, arginfo_wiringpi_pin_mode)
 	PHP_FE(wiringpi_digital_write, arginfo_wiringpi_digital_write)
 	PHP_FE(wiringpi_digital_read, arginfo_wiringpi_digital_read)
+	PHP_FE(wiringpi_pwm_write, arginfo_wiringpi_pwm_write)
 	PHP_FE(wiringpi_pull_up_dn_control, arginfo_wiringpi_pull_up_dn_control)
 	PHP_FE_END
 };
@@ -321,13 +300,88 @@ static PHP_MINFO_FUNCTION(wiringpi)
 {
 	int major;
 	int minor;
+	int model;
+	int rev;
+	int mem;
+	int maker;
+	int warranty
 	char piVersion[6];
 	wiringPiVersion(&major, &minor);
 	php_sprintf(piVersion, "%d.%d", major, minor);
+	//piBoardId (int *model, int *rev, int *mem, int *maker, int *warranty)
+	piBoardId(&model, &rev, &mem, &maker, &warranty);
 	php_info_print_table_start();
 	php_info_print_table_row(2, "WiringPi", "enabled");
 	php_info_print_table_row(2, "Version", PHP_WIRINGPI_VERSION);
 	php_info_print_table_row(2, "libwiringPi version", piVersion);
+	switch (model) {
+		case PI_MODEL_A:
+			php_info_print_table_row(2, "Model", "A");
+		break;
+		case PI_MODEL_AP:
+			php_info_print_table_row(2, "Model", "A+");
+		break;
+		case PI_MODEL_B:
+			php_info_print_table_row(2, "Model", "B");
+		break;
+		case PI_MODEL_BP:
+			php_info_print_table_row(2, "Model", "B+");
+		break;
+		case PI_MODEL_2:
+			php_info_print_table_row(2, "Model", "2");
+		break;
+		case PI_ALPHA:
+			php_info_print_table_row(2, "Model", "Alpha");
+		break;
+		case PI_MODEL_CM:
+			php_info_print_table_row(2, "Model", "Compute Module");
+		break;
+		case PI_MODEL_07:
+			php_info_print_table_row(2, "Model", "07");
+		break;
+		case PI_MODEL_3:
+			php_info_print_table_row(2, "Model", "3");
+		break;
+		case PI_MODEL_ZERO:
+			php_info_print_table_row(2, "Model", "Zero");
+		break;
+		case PI_MODEL_CM3:
+			php_info_print_table_row(2, "Model", "Compute Module 3");
+		break;
+		case PI_MODEL_ZERO_W:
+			php_info_print_table_row(2, "Model", "Zero W");
+		break;
+	}
+	switch (rev) {
+		case PI_VERSION_1:
+			php_info_print_table_row(2, "Revision", "1");
+		break;
+		case PI_VERSION_1_1:
+			php_info_print_table_row(2, "Revision", "1.1");
+		break;
+		case PI_VERSION_1_2:
+			php_info_print_table_row(2, "Revision", "1.2");
+		break;
+		case PI_VERSION_2:
+			php_info_print_table_row(2, "Revision", "2");
+		break;
+	}
+
+	switch (maker) {
+		case PI_MAKER_SONY:
+			php_info_print_table_row(2, "Maker", "Sony");
+		break;
+		case PI_MAKER_EGOMAN:
+			php_info_print_table_row(2, "Maker", "Egoman");
+		break;
+		case PI_MAKER_EMBEST:
+			php_info_print_table_row(2, "Maker", "Embest");
+		break;
+		case PI_MAKER_UNKNOWN:
+			php_info_print_table_row(2, "Maker", "Unknown");
+		break;
+	}
+
 	php_info_print_table_end();
 }
 
