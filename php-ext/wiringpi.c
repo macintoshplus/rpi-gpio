@@ -304,7 +304,7 @@ static PHP_MINFO_FUNCTION(wiringpi)
 	int rev;
 	int mem;
 	int maker;
-	int warranty
+	int warranty;
 	char piVersion[6];
 	wiringPiVersion(&major, &minor);
 	php_sprintf(piVersion, "%d.%d", major, minor);
