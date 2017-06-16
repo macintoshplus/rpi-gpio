@@ -31,9 +31,12 @@
 #include "wiringPi.h"
 
 /* {{{ proto int wiringpi_setup()
-	Init the wiringpi lib */
+	Setup the wiringpi lib in default mode */
 static PHP_FUNCTION(wiringpi_setup)
 {
+	if (SVCG(is_setup) == 1) {
+		RETURN_FALSE;
+	}
 	int code;
 	code = wiringPiSetup();
 	if (code == 0) {
