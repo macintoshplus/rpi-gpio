@@ -30,6 +30,7 @@
 
 ZEND_BEGIN_MODULE_GLOBALS(wiringpi)
 	char *service_name;
+  int is_setup;
 ZEND_END_MODULE_GLOBALS(wiringpi)
 
 ZEND_DECLARE_MODULE_GLOBALS(wiringpi);

@@ -36,7 +36,21 @@ static PHP_FUNCTION(wiringpi_setup)
 {
 	int code;
 	code = wiringPiSetup();
+	if (code == 0) {
+		SVCG(is_setup) = 1;
+	}
 	RETURN_LONG(code);
+}
+/* }}} */
+
+/* {{{ proto bool wiringpi_already_setup()
+	Return true if the setup is already called */
+static PHP_FUNCTION(wiringpi_already_setup)
+{
+	if (SVCG(is_setup) == 1) {
+		RETURN_TRUE;
+	}
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -169,6 +183,9 @@ static PHP_FUNCTION(wiringpi_pwm_write)
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_setup, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_already_setup, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wiring_pi_mode, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -202,6 +219,7 @@ ZEND_END_ARG_INFO()
 static zend_function_entry functions[] = {
 	//PHP_FE(win32_start_service_ctrl_dispatcher, arginfo_win32_start_service_ctrl_dispatcher)
 	PHP_FE(wiringpi_setup, arginfo_wiringpi_setup)
+	PHP_FE(wiringpi_already_setup, arginfo_wiringpi_already_setup)
 	PHP_FE(wiring_pi_mode, arginfo_wiring_pi_mode)
 	PHP_FE(wiringpi_pin_mode, arginfo_wiringpi_pin_mode)
 	PHP_FE(wiringpi_digital_write, arginfo_wiringpi_digital_write)
@@ -218,6 +236,7 @@ static void init_globals(zend_wiringpi_globals *g)
 
 static PHP_MINIT_FUNCTION(wiringpi)
 {
+	SVCG(is_setup) = 0;
 
 	ZEND_INIT_MODULE_GLOBALS(wiringpi, init_globals, NULL);
 	// wiringPi modes
