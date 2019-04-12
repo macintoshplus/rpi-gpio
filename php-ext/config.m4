@@ -27,6 +27,8 @@ if test "$PHP_WIRINGPI" != "no"; then
     dnl Pour que le linker lie à la bibliothèque
     LDFLAGS="$LDFLAGS -lwiringPi -L$WIRINGPI_DIR/lib"
 
-	PHP_NEW_EXTENSION(wiringpi, wiringpi.c, $ext_shared);
+    WIRING_SOURCES="wiringpi.c wiringpi_setup.c"
+
+	PHP_NEW_EXTENSION(wiringpi, $WIRING_SOURCES, $ext_shared);
     PHP_SUBST(WIRINGPI_SHARED_LIBADD)
 fi

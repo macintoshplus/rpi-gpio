@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author: Jean-Baptiste Nahan <jb@nahan.fr>                            |
+  | Author: Jean-Baptiste Nahan <jbnahan@php.net>                        |
   +----------------------------------------------------------------------+
 */
 
@@ -29,33 +29,7 @@
 #include "php_wiringpi_int.h"
 #include "SAPI.h"
 #include "wiringPi.h"
-
-/* {{{ proto int wiringpi_setup()
-	Setup the wiringpi lib in default mode */
-static PHP_FUNCTION(wiringpi_setup)
-{
-	if (SVCG(is_setup) == 1) {
-		RETURN_FALSE;
-	}
-	int code;
-	code = wiringPiSetup();
-	if (code == 0) {
-		SVCG(is_setup) = 1;
-	}
-	RETURN_LONG(code);
-}
-/* }}} */
-
-/* {{{ proto bool wiringpi_already_setup()
-	Return true if the setup is already called */
-static PHP_FUNCTION(wiringpi_already_setup)
-{
-	if (SVCG(is_setup) == 1) {
-		RETURN_TRUE;
-	}
-	RETURN_FALSE;
-}
-/* }}} */
+#include "wiring_setup.h"
 
 /* {{{ proto int wiring_pi_mode()
 	Return the Wiring Pi Mode of library */
@@ -180,14 +154,46 @@ static PHP_FUNCTION(wiringpi_pwm_write)
 /* }}} */
 
 
+/* {{{ proto int wiringpi_analog_read(int $pin)
+	Set value for one pin */
+static PHP_FUNCTION(wiringpi_analog_read)
+{
+	long pin;
+	int val;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pin)) {
+		RETURN_FALSE;
+	}
+	if ((pin & PI_GPIO_MASK) != 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	val = analogRead(pin);
+	RETURN_LONG(val);
+}
+/* }}} */
+
+/* {{{ proto bool wiringpi_analog_write(int $pin, int $value)
+	Set value for one pin */
+static PHP_FUNCTION(wiringpi_analog_write)
+{
+	long pin;
+	long value;
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pin, &value)) {
+		RETURN_FALSE;
+	}
+	if ((pin & PI_GPIO_MASK) != 0) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "pin cannot be negative");
+		RETURN_FALSE;
+	}
+
+	analogWrite(pin, value);
+	RETURN_TRUE;
+}
+/* }}} */
+
 
 /* {{{ arginfo */
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_setup, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_already_setup, 0, 0, 0)
-ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wiring_pi_mode, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -216,19 +222,27 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_pwm_write, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_analog_read, 0, 0, 1)
+	ZEND_ARG_INFO(0, pin)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wiringpi_analog_write, 0, 0, 2)
+	ZEND_ARG_INFO(0, pin)
+	ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
 /* }}} */
 
 
-static zend_function_entry functions[] = {
-	//PHP_FE(win32_start_service_ctrl_dispatcher, arginfo_win32_start_service_ctrl_dispatcher)
-	PHP_FE(wiringpi_setup, arginfo_wiringpi_setup)
-	PHP_FE(wiringpi_already_setup, arginfo_wiringpi_already_setup)
+static zend_function_entry wiringpi_functions[] = {
 	PHP_FE(wiring_pi_mode, arginfo_wiring_pi_mode)
 	PHP_FE(wiringpi_pin_mode, arginfo_wiringpi_pin_mode)
 	PHP_FE(wiringpi_digital_write, arginfo_wiringpi_digital_write)
 	PHP_FE(wiringpi_digital_read, arginfo_wiringpi_digital_read)
 	PHP_FE(wiringpi_pwm_write, arginfo_wiringpi_pwm_write)
 	PHP_FE(wiringpi_pull_up_dn_control, arginfo_wiringpi_pull_up_dn_control)
+	PHP_FE(wiringpi_analog_read, arginfo_wiringpi_analog_read)
+	PHP_FE(wiringpi_analog_write, arginfo_wiringpi_analog_write)
 	PHP_FE_END
 };
 
@@ -242,6 +256,9 @@ static PHP_MINIT_FUNCTION(wiringpi)
 //	SVCG(is_setup) = 0;
 
 	ZEND_INIT_MODULE_GLOBALS(wiringpi, init_globals, NULL);
+
+	PHP_MINIT(wiring_setup)(INIT_FUNC_ARGS_PASSTHRU);
+
 	// wiringPi modes
 
 	REGISTER_LONG_CONSTANT("WIRINGPI_WPI_MODE_PINS", WPI_MODE_PINS, CONST_CS | CONST_PERSISTENT);
@@ -410,7 +427,7 @@ static PHP_MINFO_FUNCTION(wiringpi)
 zend_module_entry wiringpi_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"wiringpi",
-	functions,
+	wiringpi_functions,
 	PHP_MINIT(wiringpi),
 	NULL,
 	NULL,
